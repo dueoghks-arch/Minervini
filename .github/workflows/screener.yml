@@ -1,0 +1,36 @@
+name: Minervini Stock Screener
+
+on:
+  schedule:
+    # 한국시간 기준 평일 매일 17:00 실행 (UTC 08:00)
+    - cron: '0 8 * * 1-5'
+  workflow_dispatch: # 깃허브 웹상에서 'Run workflow' 버튼으로 수동 실행도 가능
+
+jobs:
+  run-screener:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Run Screener
+      run: python screener.py
+
+    - name: Commit and Push Results
+      run: |
+        git config --global user.name 'github-actions[bot]'
+        git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+        git add minervini_candidates.csv
+        git commit -m "Auto-update Minervini stocks ($(date +'%Y-%m-%d'))" || exit 0
+        git push
