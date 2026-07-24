@@ -1,9 +1,10 @@
-name: Minervini Stock Screener
+name: US Stock Minervini Screener
 
 on:
   schedule:
-    - cron: '0 8 * * 1-5' # 평일 한국시간 17:00 실행
-  workflow_dispatch:
+    # UTC 기준 21:30 (한국시간 평일 오전 06:30 분에 실행)
+    - cron: '30 21 * * 1-5'
+  workflow_dispatch: # 수동 실행 버튼 활성화
 
 jobs:
   run-screener:
@@ -23,8 +24,8 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    - name: Run Screener and Send Email
+    - name: Run US Screener
       env:
         EMAIL_USER: ${{ secrets.EMAIL_USER }}
         EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
-      run: python screener.py
+      run: python screener_us.py
