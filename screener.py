@@ -83,12 +83,12 @@ def check_minervini_template(symbol, name, df_bench):
 
 def send_email(df_res):
     """지정된 이메일로 리스트 메일 발송"""
-    sender_email = "dueoghks@gmail.com"
-    receiver_email = "dueoghks@gmail.com"
-    app_password = os.environ.get("GMAIL_APP_PASSWORD")
+    sender_email = os.environ.get("EMAIL_USER")
+    receiver_email = os.environ.get("EMAIL_USER")
+    app_password = os.environ.get("EMAIL_PASS")
 
     if not app_password:
-        print("이메일 발송 실패: GMAIL_APP_PASSWORD 환경변수가 설정되지 않았증니다.")
+        print("이메일 발송 실패: EMAIL_PASS 환경변수가 설정되지 않았증니다.")
         return
 
     today_str = datetime.date.today().strftime("%Y-%m-%d")
