@@ -7,10 +7,12 @@ import pandas as pd
 import numpy as np
 import yfinance as yf
 
+import io
 import urllib.request
+import pandas as pd
 
 def get_us_tickers():
-    """S&P 500 및 NASDAQ 100 티커 수집 (User-Agent 헤더 추가로 403 차단 회피)"""
+    """S&P 500 및 NASDAQ 100 티커 수집 (User-Agent 및 io.StringIO 적용)"""
     tickers = set()
     headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'}
     
@@ -18,7 +20,10 @@ def get_us_tickers():
     try:
         sp500_url = 'https://en.wikipedia.org/wiki/List_of_S%26P_500_companies'
         req = urllib.request.Request(sp500_url, headers=headers)
-        sp500_table = pd.read_html(req)[0]
+        with urllib.request.urlopen(req) as response:
+            html = response.read().decode('utf-8')
+        
+        sp500_table = pd.read_html(io.StringIO(html))[0]
         sp500_tickers = sp500_table['Symbol'].str.replace('.', '-', regex=False).tolist()
         tickers.update(sp500_tickers)
         print(f"S&P 500 수집 완료: {len(sp500_tickers)}개")
@@ -29,7 +34,10 @@ def get_us_tickers():
     try:
         nasdaq100_url = 'https://en.wikipedia.org/wiki/Nasdaq-100'
         req = urllib.request.Request(nasdaq100_url, headers=headers)
-        nasdaq100_tables = pd.read_html(req)
+        with urllib.request.urlopen(req) as response:
+            html = response.read().decode('utf-8')
+            
+        nasdaq100_tables = pd.read_html(io.StringIO(html))
         
         nasdaq_table = None
         for t in nasdaq100_tables:
