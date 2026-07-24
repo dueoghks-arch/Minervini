@@ -7,14 +7,18 @@ import pandas as pd
 import numpy as np
 import yfinance as yf
 
+import urllib.request
+
 def get_us_tickers():
-    """S&P 500 및 NASDAQ 100 티커 수집 및 중복 제거"""
+    """S&P 500 및 NASDAQ 100 티커 수집 (User-Agent 헤더 추가로 403 차단 회피)"""
     tickers = set()
+    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'}
     
     # 1. S&P 500 수집
     try:
         sp500_url = 'https://en.wikipedia.org/wiki/List_of_S%26P_500_companies'
-        sp500_table = pd.read_html(sp500_url)[0]
+        req = urllib.request.Request(sp500_url, headers=headers)
+        sp500_table = pd.read_html(req)[0]
         sp500_tickers = sp500_table['Symbol'].str.replace('.', '-', regex=False).tolist()
         tickers.update(sp500_tickers)
         print(f"S&P 500 수집 완료: {len(sp500_tickers)}개")
@@ -24,8 +28,9 @@ def get_us_tickers():
     # 2. NASDAQ 100 수집
     try:
         nasdaq100_url = 'https://en.wikipedia.org/wiki/Nasdaq-100'
-        nasdaq100_tables = pd.read_html(nasdaq100_url)
-        # 보통 4번째 또는 'Ticker'/'Symbol' 컬럼이 포함된 테이블
+        req = urllib.request.Request(nasdaq100_url, headers=headers)
+        nasdaq100_tables = pd.read_html(req)
+        
         nasdaq_table = None
         for t in nasdaq100_tables:
             if 'Ticker' in t.columns or 'Symbol' in t.columns:
