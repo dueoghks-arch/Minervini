@@ -1,4 +1,4 @@
 pandas
 numpy
 yfinance
-FinanceDataReader
+finance-datareader
